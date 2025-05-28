@@ -1,5 +1,5 @@
 import serial
-from pynput.keyboard import Controller
+from pynput.keyboard import Controller, Key
 import time
 from dataclasses import dataclass
 
@@ -17,14 +17,14 @@ COMBO = [0] * 6
 
 class Input:
     def __init__(self):
-        self.left: "Coordinate" = Coordinate((0, MIDDLE-DEADZONE), (MIDDLE//2 + 1, MIDDLE + MIDDLE//2 - 1))
-        self.right: "Coordinate" = Coordinate((MIDDLE+DEADZONE, MAX), (MIDDLE//2 + 1, MIDDLE + MIDDLE//2 -1))
-        self.up: "Coordinate" = Coordinate((MIDDLE//2 + 1, MIDDLE + MIDDLE//2 - 1), (0, MIDDLE-DEADZONE))
-        self.down: "Coordinate" = Coordinate((MIDDLE//2 + 1, MIDDLE + MIDDLE//2 - 1), (MIDDLE+DEADZONE, MAX))
-        self.up_left: "Coordinate" = Coordinate((0, MIDDLE//2), (0, MIDDLE//2))
+        self.down: "Coordinate" = Coordinate((0, MIDDLE-DEADZONE), (MIDDLE//2 + 1, MIDDLE + MIDDLE//2 - 1))
+        self.up: "Coordinate" = Coordinate((MIDDLE+DEADZONE, MAX), (MIDDLE//2 + 1, MIDDLE + MIDDLE//2 -1))
+        self.right: "Coordinate" = Coordinate((MIDDLE//2 + 1, MIDDLE + MIDDLE//2 - 1), (0, MIDDLE-DEADZONE))
+        self.left: "Coordinate" = Coordinate((MIDDLE//2 + 1, MIDDLE + MIDDLE//2 - 1), (MIDDLE+DEADZONE, MAX))
+        self.down_right: "Coordinate" = Coordinate((0, MIDDLE//2), (0, MIDDLE//2))
         self.up_right: "Coordinate" = Coordinate((MIDDLE + MIDDLE//2, MAX), (0, MIDDLE//2))
         self.down_left: "Coordinate" = Coordinate((0, MIDDLE//2), (MIDDLE + MIDDLE//2, MAX))
-        self.down_right: "Coordinate" = Coordinate((MIDDLE + MIDDLE//2, MAX), (MIDDLE + MIDDLE//2, MAX))
+        self.up_left: "Coordinate" = Coordinate((MIDDLE + MIDDLE//2, MAX), (MIDDLE + MIDDLE//2, MAX))
         
 @dataclass (frozen=True)
 class Coordinate:
@@ -48,34 +48,35 @@ def main() -> None:
                 current_time = time.time()
                 global INPUT_HISTORY
                 
-                
-                
                 if current_time - last_key_press_time > 0.05:
-                    if INPUT_HISTORY[-1] == 0 and INPUT_HISTORY[-2] != 0 and not action_taken and not rotate:
-                        # a button has been pressed
-                        # print('press')
-                        action_taken = True
+                    
 
                     if INPUT_HISTORY[-2] == 1 and INPUT_HISTORY[-1] == 8:
                         # print('counter')
-                        keyboard.type(',')
+                        keyboard.type('e')
                         rotate = True
                     elif INPUT_HISTORY[-1] != 0 and INPUT_HISTORY[-2] != 0 and INPUT_HISTORY[-1] > INPUT_HISTORY[-2]:
                         # print('wise')
-                        keyboard.type('e')
+                        keyboard.type(',')
                         rotate = True
     
                     if INPUT_HISTORY[-2] == 8 and INPUT_HISTORY[-1] == 1:
                         # print('wise')
-                        keyboard.type('e')
+                        keyboard.type(',')
                         rotate = True
     
                     elif INPUT_HISTORY[-1] != 0  and INPUT_HISTORY[-1] < INPUT_HISTORY[-2]:
                         # we are rotating counter-clockwise
                         # print('counter')
-                        keyboard.type(',')
+                        keyboard.type('e')
                         rotate = True
                         # print(INPUT_HISTORY)
+
+                    if INPUT_HISTORY[-1] == 0 and INPUT_HISTORY[-2] != 0 and not action_taken and not rotate:
+                        # a button has been pressed
+                        print('press')
+                        button_out(INPUT_HISTORY[-2])
+                        action_taken = True
                     
                     direction = get_direction(x_val, y_val, dirct)
                     
@@ -85,6 +86,7 @@ def main() -> None:
                     else:
                         rotate = False
                         action_taken = True
+                    
                     
                     # more useless combo code
                     if direction != COMBO[-1]:
@@ -139,6 +141,23 @@ def get_direction(x: int, y: int, dirct: "Input") -> int:
           and dirct.up_left.y[0] <= y <= dirct.up_left.y[1]):
         return 8
     return 0
+
+
+def button_out(button: int) -> None:
+    match button:
+        case 1:
+            keyboard.press(Key.space)
+            keyboard.release(Key.space)
+        case 7:
+            # move track up
+            keyboard.press(Key.up)
+            keyboard.release(Key.up)
+        case 3:
+            # move track down
+            keyboard.press(Key.down)
+            keyboard.release(Key.down)
+        case 5:
+            keyboard.type('r')
 
 
 # also not used, just here if we want it

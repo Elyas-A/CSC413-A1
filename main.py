@@ -12,9 +12,6 @@ MAX: int = 1023
 BUFFER_SIZE = 10
 INPUT_HISTORY = [0] * BUFFER_SIZE
 
-# This is just used if we want a system of the user inputting 3 directions and have it mapped to a shortcut
-COMBO = [0] * 6
-
 class Input:
     def __init__(self):
         self.down: "Coordinate" = Coordinate((0, MIDDLE-DEADZONE), (MIDDLE//2 + 1, MIDDLE + MIDDLE//2 - 1))
@@ -49,8 +46,6 @@ def main() -> None:
                 global INPUT_HISTORY
                 
                 if current_time - last_key_press_time > 0.05:
-                    
-
                     if INPUT_HISTORY[-2] == 1 and INPUT_HISTORY[-1] == 8:
                         # print('counter')
                         keyboard.type('e')
@@ -86,12 +81,6 @@ def main() -> None:
                     else:
                         rotate = False
                         action_taken = True
-                    
-                    
-                    # more useless combo code
-                    if direction != COMBO[-1]:
-                        COMBO.pop(1)
-                        COMBO.append(direction)
                     
                     if 1 <= direction <= 8 and not rotate:
                         action_taken = False
@@ -158,16 +147,6 @@ def button_out(button: int) -> None:
             keyboard.release(Key.down)
         case 5:
             keyboard.type('r')
-
-
-# also not used, just here if we want it
-def get_combo() -> list:
-    global INPUT_HISTORY
-    combo = [x for x in INPUT_HISTORY if x != 0]
-    if len(combo) < 3:
-        return []
-    INPUT_HISTORY = [0, 0, 0, 0, 0, 0]
-    return combo[-3:]
 
 
 if __name__ == "__main__":
